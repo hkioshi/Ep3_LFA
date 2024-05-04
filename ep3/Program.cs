@@ -194,7 +194,7 @@ public class Json
                     break;
                 case ("s", "q16", _):
                     pilha.Recolocar(topo);
-                    estado = "q1";
+                    estado = "q12";
                     break;
 
                 case ("}", "q13", "o"):
@@ -202,6 +202,127 @@ public class Json
                     break;
 
                 // Fim Bool
+
+                //Inicio do Lista
+
+                case ("[", "q4", _):
+                    pilha.Recolocar(topo);
+
+                    pilha.Colocar("c");
+                    estado = "q17";
+                    break;
+                case ("\"", "q17", _):
+                    pilha.Recolocar(topo);
+                    pilha.Colocar("s");
+                    estado = "q18";
+                    break;
+                case ("\"", "q18", "s"):
+                    VerificarString(key, ref f);
+                    estado = "q28";
+                    break;
+                case (_, "q18", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    break;
+
+
+                case ("t", "q17", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    estado = "q19";
+                    break;
+                case ("r", "q19", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    estado = "q20";
+                    break;
+                case ("u", "q20", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    estado = "q21";
+                    break;
+                case ("e", "q21", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    estado = "q28";
+                    break;
+
+
+                case ("f", "q17", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    estado = "q22";
+                    break;
+                case ("a", "q22", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    estado = "q23";
+                    break;
+                case ("l", "q23", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    estado = "q24";
+                    break;
+                case ("s", "q24", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    estado = "q21";
+                    break;
+               
+                
+
+                case ("[", "q17", _):
+                    pilha.Recolocar(topo);
+                    pilha.Colocar("c");
+                    estado = "q17";
+                    break;
+
+
+                case (_, "q17", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    VerificarNumero(character, ref f);
+                    estado = "q28";
+
+                    break;
+
+                case (",", "q28", "o"):
+                    estado = "q8";
+                    pilha.Colocar("k");
+                    
+                    break;
+                case (",", "q28", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    estado = "q17";
+                    break;
+                case ("]", "q28", "c"):
+                    
+                    break;
+                case ("}", "q28", "o"):
+                    Aceitar();
+                    break;
+                
+                case (_, "q28", _):
+                    pilha.Recolocar(topo);
+                    objeto += character;
+                    VerificarNumero(character, ref f);
+                    
+
+
+                    break;
+                
+
+
+
+                //fim Lista
+
+
+                //Inicio do objeto
+
+                //fim objeto
+
+
 
 
                 //inicio da int
@@ -254,7 +375,7 @@ class ep3
     public static void Main(string[] args)
     {  
         Json conversor = new Json();
-        conversor.Parse("{\"asaa\":\"asda\",\"asaa\":false}");
+        conversor.Parse("{\"asaa\":[false,true,1212]}");
     }
 }
 
