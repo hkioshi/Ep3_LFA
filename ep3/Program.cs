@@ -114,7 +114,7 @@ public class Json
                     key += character;
                     pilha.Recolocar(topo);
                     break;
-                case (":", "q3", _):
+                case (":", "q3", "o"):
                     estado = "q4";
                     break;
                 // fim da key
@@ -188,6 +188,12 @@ public class Json
                     break;
                 case ("}", "q13", "$"):
                     Aceitar();
+                    break;
+
+                case (",","q13","$"):
+                    estado = "q8";
+                    pilha.Recolocar(topo);
+                    pilha.Colocar("k");
                     break;
                 // Fim Bool
 
@@ -270,7 +276,8 @@ public class Json
                     break;
                 case (",", "q28", _):
                     pilha.Recolocar(topo);
-                    objeto += character;
+                    //objeto += character;
+                    objeto = "";
                     estado = "q17";
                     break;
                 case ("]", "q28", "c"):
@@ -342,6 +349,7 @@ public class Json
 
                 case (",", "q9", "$"):
                     estado = "q8";
+                    pilha.Recolocar(topo);
                     pilha.Colocar("k");
                     break;
                    
@@ -377,8 +385,8 @@ class ep3
     public static void Main(string[] args)
     {  
         Json conversor = new Json();
-        conversor.Parse(@"{""asa"":{""asa"":false},""np"":21123,""sada"":{""a"":[1,""a"",true]}}");
-    }
+        conversor.Parse(@"{""a"":true,""s"":false}");
+      }
 }
 
 
