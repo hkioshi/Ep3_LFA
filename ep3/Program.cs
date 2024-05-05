@@ -9,9 +9,6 @@ using System.Text.RegularExpressions;
 public class Pilha
 {
     Stack<string> stack = new Stack<string>();
-    
-
-
     public void Colocar(string s)
     {
         Console.WriteLine("empilhou: " + s);
@@ -130,27 +127,22 @@ public class Json
                     pilha.Recolocar(topo);
                     pilha.Colocar("s");
                     break;
-
                 case ("\"", "q5", "s"):
                     estado = "q6";
                     break;
-
                 case (_, "q5", _):
                     estado = "q5";
                     objeto += character;
                     pilha.Recolocar(topo);
                     break;
-
                 case ("}", "q6", "o"):
                     
                     Aceitar();
                     break;
-
                 case (",", "q6", "o"):
                     estado = "q8";
                     pilha.Colocar("k");
                     break;
-
                 case ("\"", "q8", "k"):
                     estado = "q2";
                     Adicionar();
@@ -159,11 +151,9 @@ public class Json
                     pilha.Colocar("s");
 
                     break;
-
                 // fim da string
 
                 // Inicio Bool
-
                 case ("t", "q4", _):
                     pilha.Recolocar(topo);
                     estado = "q10";
@@ -196,15 +186,12 @@ public class Json
                     pilha.Recolocar(topo);
                     estado = "q12";
                     break;
-
                 case ("}", "q13", "o"):
                     Aceitar();
                     break;
-
                 // Fim Bool
 
                 //Inicio do Lista
-
                 case ("[", "q4", _):
                     pilha.Recolocar(topo);
 
@@ -224,8 +211,6 @@ public class Json
                     pilha.Recolocar(topo);
                     objeto += character;
                     break;
-
-
                 case ("t", "q17", _):
                     pilha.Recolocar(topo);
                     objeto += character;
@@ -246,8 +231,6 @@ public class Json
                     objeto += character;
                     estado = "q28";
                     break;
-
-
                 case ("f", "q17", _):
                     pilha.Recolocar(topo);
                     objeto += character;
@@ -268,16 +251,11 @@ public class Json
                     objeto += character;
                     estado = "q21";
                     break;
-               
-                
-
                 case ("[", "q17", _):
                     pilha.Recolocar(topo);
                     pilha.Colocar("c");
                     estado = "q17";
                     break;
-
-
                 case (_, "q17", _):
                     pilha.Recolocar(topo);
                     objeto += character;
@@ -285,7 +263,6 @@ public class Json
                     estado = "q28";
 
                     break;
-
                 case (",", "q28", "o"):
                     estado = "q8";
                     pilha.Colocar("k");
@@ -301,8 +278,7 @@ public class Json
                     break;
                 case ("}", "q28", "o"):
                     Aceitar();
-                    break;
-                
+                    break;               
                 case (_, "q28", _):
                     pilha.Recolocar(topo);
                     objeto += character;
@@ -311,14 +287,31 @@ public class Json
 
 
                     break;
-                
-
-
 
                 //fim Lista
 
 
                 //Inicio do objeto
+                case ("{", "q4", _):
+                    estado = "q1";
+                    pilha.Recolocar(topo);
+                    pilha.Colocar("z");
+                    break;
+
+                case ("{", "q8", "k"):
+                    pilha.Recolocar(topo);
+                    break;
+
+
+                case ("}", "q7", "$"):
+                    Aceitar();
+                    break;
+
+                case (",", "q7", "$"):
+                    pilha.Recolocar(topo);
+                    estado = "q8";
+                    pilha.Colocar("k");
+                    break;
 
                 //fim objeto
 
@@ -375,7 +368,7 @@ class ep3
     public static void Main(string[] args)
     {  
         Json conversor = new Json();
-        conversor.Parse("{\"asaa\":[false,true,1212]}");
+        conversor.Parse(@"{""asaa"":[false,true,1212,[""ola""]],""asa"":{""asa"":false},""np"":21123}");
     }
 }
 
