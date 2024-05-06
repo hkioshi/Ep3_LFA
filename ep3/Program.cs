@@ -13,32 +13,33 @@ public class Pilha
     {
         Console.WriteLine("empilhou: " + s);
         stack.Push(s);
-    }
+    } // Vai colocar na pilha e mensagem
     public void Recolocar(string s)
     {
         stack.Push(s);
-    }
+    }//Recolococar o que foi tirado, sem mensagens
     public string Tirar(ref string tirado)
     {
         if (stack.Count > 0) tirado = stack.Pop();
         else tirado = null;
         return tirado;
-    }
+    }//Tirar primeiro da pilha
 }
 public class Json
 {
 
-    string key = "", objeto = "";
+    string key = "", objeto = "";// objeto e key
 
-    Pilha pilha = new Pilha();
-    string inteiro = "", character = "", topo = "";
-    string estado = "q0";
-    bool f = true;
+    Pilha pilha = new Pilha();// pilha instaciada
+    string inteiro = "", character = "", topo = "";// aq ficam armazenadas as parte que falta processar, o caracter sendo processado e, o topo da pilha
+    string estado = "q0";// estado
+    bool f = true;// flag pra controlar o while
+    string tipo= "";
 
-    List<(string,string)> lista_de_Objetos = new List<(string, string)>();
+    List<(string,string, string)> lista_de_Objetos = new List<(string, string, string)>();// aq ficam armazenados as tuplas(key,Objeto)
     Regex letra = new Regex(@"[a-zA-Z0-9]", RegexOptions.IgnorePatternWhitespace);
-    Regex numero = new Regex(@"[0-9]");
-    void Proximo(ref string inteiro, ref string topo)
+    Regex numero = new Regex(@"\d+(\.\d+)?");
+    void Proximo(ref string inteiro, ref string topo)//refs sao ponteiros, coloquei ai pra retornar mais valores
     {
         if (inteiro.Substring(1) != "")
         {
@@ -51,43 +52,47 @@ public class Json
         }
     }
 
-    void VerificarString(string key, ref bool f)
-    {
-        if(!letra.IsMatch(key))
-        {
-            Console.WriteLine("Rejeitado");
-            f = false; 
-        }
-    }
+    
 
     void VerificarNumero(string key, ref bool f)
     {
         if (!numero.IsMatch(key))
         {
-            Console.WriteLine("Rejeitado");
+            Console.WriteLine("Rejeitado - Nao é um numero");
             f = false;
         }
     }
 
     void Adicionar()
     {
-        lista_de_Objetos.Add((key, objeto));
+        
+        lista_de_Objetos.Add((key, objeto,tipo));
         key = "";
         objeto = "";
-    }
+        tipo = "";
+    }//O Método vai Adicionar uma tupla(key, objeto) na 
     void Aceitar()
     {
         pilha.Tirar(ref topo);
         estado = "q7";
         Console.WriteLine("Aceito");
-        Adicionar();
         f = false;
+    }
+
+    void Printar_Objetos()
+    {
+        foreach ((string, string,string) a in lista_de_Objetos)
+        {
+            
+            Console.WriteLine(a);
+
+        }
     }
 
     public void Parse(string json)
     {
         inteiro = json;
-        
+        List<string> list = new List<string>(); // lista temporaria para armazenar os json dentro de objetos
         while (f)
         {
             Proximo(ref inteiro, ref character);
@@ -107,7 +112,6 @@ public class Json
                     pilha.Colocar("s");
                     break;
                 case ("\"", "q2", "s"):
-                    VerificarString(key, ref f);
                     estado = "q3";
                     break;
                 case (_, "q2", _):
@@ -121,13 +125,13 @@ public class Json
 
 
                 //string
-                case ("\"", "q4", _):
+                case ("\"", "q4", "$"):
                     estado = "q5";
+                    tipo = "string";
                     pilha.Recolocar(topo);
                     pilha.Colocar("s");
                     break;
                 case ("\"", "q5", "s"):
-                    pilha.Tirar(ref topo);
                     estado = "q6";
                     break;
                 case (_, "q5", _):
@@ -136,16 +140,19 @@ public class Json
                     pilha.Recolocar(topo);
                     break;
                 case ("}", "q6", "$"):
+                    
                     Aceitar();
                     break;
                 case (",", "q6", "$"):
+                    
                     estado = "q8";
+                    tipo = "";
                     pilha.Recolocar(topo);
                     pilha.Colocar("k");
                     break;
                 case ("\"", "q8", "k"):
                     estado = "q2";
-                    Adicionar();
+                 
 
                     pilha.Colocar("o");
                     pilha.Colocar("s");
@@ -156,34 +163,44 @@ public class Json
                 // Inicio Bool
                 case ("t", "q4", _):
                     pilha.Recolocar(topo);
+                    objeto += character;
                     estado = "q10";
                     break;
                 case ("r", "q10", _):
                     pilha.Recolocar(topo);
+                    objeto += character;
                     estado = "q11";
                     break;
                 case ("u", "q11", _):
                     pilha.Recolocar(topo);
+                    objeto += character;
                     estado = "q12";
                     break;
                 case ("e", "q12", _):
+                    tipo = "bool";
                     pilha.Recolocar(topo);
+                    objeto += character;
+                    Adicionar();
                     estado = "q13";
                     break;
                 case ("f", "q4", _):
                     pilha.Recolocar(topo);
+                    objeto += character;
                     estado = "q14";
                     break;
                 case ("a", "q14", _):
                     pilha.Recolocar(topo);
+                    objeto += character;
                     estado = "q15";
                     break;
                 case ("l", "q15", _):
                     pilha.Recolocar(topo);
+                    objeto += character;
                     estado = "q16";
                     break;
                 case ("s", "q16", _):
                     pilha.Recolocar(topo);
+                    objeto += character;
                     estado = "q12";
                     break;
                 case ("}", "q13", "$"):
@@ -199,9 +216,11 @@ public class Json
 
                 //Inicio do Lista
                 case ("[", "q4", _):
+                    tipo = "lista";
+                    
                     pilha.Recolocar(topo);
-
                     pilha.Colocar("c");
+                    
                     estado = "q17";
                     break;
                 case ("\"", "q17", _):
@@ -210,7 +229,7 @@ public class Json
                     estado = "q18";
                     break;
                 case ("\"", "q18", "s"):
-                    VerificarString(key, ref f);
+                    list.Add(objeto + "-string");
                     estado = "q28";
                     break;
                 case (_, "q18", _):
@@ -219,6 +238,7 @@ public class Json
                     break;
                 case ("t", "q17", _):
                     pilha.Recolocar(topo);
+
                     objeto += character;
                     estado = "q19";
                     break;
@@ -235,6 +255,7 @@ public class Json
                 case ("e", "q21", _):
                     pilha.Recolocar(topo);
                     objeto += character;
+                    list.Add(objeto + "-bool");
                     estado = "q28";
                     break;
                 case ("f", "q17", _):
@@ -276,12 +297,15 @@ public class Json
                     break;
                 case (",", "q28", _):
                     pilha.Recolocar(topo);
-                    //objeto += character;
                     objeto = "";
                     estado = "q17";
                     break;
                 case ("]", "q28", "c"):
-                    pilha.Tirar(ref topo);
+
+                    string valoresConcatenados = string.Join(" ", list);
+                    objeto = valoresConcatenados;
+                    Adicionar();
+
                     break;
                 case ("}", "q28", "$"):
                     Aceitar();
@@ -289,9 +313,31 @@ public class Json
                 case (_, "q28", _):
                     pilha.Recolocar(topo);
                     objeto += character;
-                    VerificarNumero(character, ref f);
-                    
+                    estado = "q123";
 
+
+                    break;
+
+                case (",", "q123", _):
+                    pilha.Recolocar(topo);
+                    list.Add(objeto + "-num");
+                    objeto = "";
+                    estado = "q17";
+                    
+                    break;
+                case ("]", "q123", "c"):
+                    pilha.Tirar(ref topo);
+
+                    pilha.Recolocar(topo);
+                    VerificarNumero(objeto, ref f);
+                    list.Add(objeto + "-num");
+                    objeto = "";
+
+                    estado = "q28";
+                    break;
+                case (_, "q123",_):
+                    pilha.Recolocar(topo);
+                    objeto += character;
 
                     break;
 
@@ -301,6 +347,7 @@ public class Json
                 //Inicio do objeto
                 case ("{", "q4", _):
                     estado = "q1";
+                    tipo = "objeto";
                     pilha.Recolocar(topo);
                     pilha.Colocar("z");
                     break;
@@ -339,11 +386,12 @@ public class Json
                     estado = "q9";
                     pilha.Recolocar(topo);
                     objeto += character;
+                    tipo = "int";
                     VerificarNumero(objeto, ref f);
                     break;
                         
                 case ("}", "q9", "$"):
-                    
+                    Adicionar();
                     Aceitar();
                     break;
 
@@ -351,6 +399,7 @@ public class Json
                     estado = "q8";
                     pilha.Recolocar(topo);
                     pilha.Colocar("k");
+                    Adicionar();
                     break;
                    
                 case (_, "q9", _):
@@ -364,7 +413,7 @@ public class Json
                 case ("}", "q1", "$"):
                     estado = "q7";
                     Console.WriteLine("Aceito");
-     
+                    
                     f = false;
                     break;
                 default:
@@ -376,6 +425,7 @@ public class Json
             }
 
          }
+        Printar_Objetos();
     }
 }
 
@@ -385,7 +435,7 @@ class ep3
     public static void Main(string[] args)
     {  
         Json conversor = new Json();
-        conversor.Parse(@"{""a"":true,""s"":false}");
+        conversor.Parse(@"{""a"":true,""s"":123,""as"":[""ss"",245,true,false]}");
       }
 }
 
